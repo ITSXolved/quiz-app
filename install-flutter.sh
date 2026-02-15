@@ -3,7 +3,7 @@
 # Exit on error and print commands
 set -ex
 
-# Deployment Trigger: 2026-02-15 20:26
+# Deployment Trigger: 2026-02-15 20:28
 
 # Clone Flutter if it doesn't exist (Shallow clone to save space)
 if [ ! -d "flutter" ]; then
@@ -11,8 +11,8 @@ if [ ! -d "flutter" ]; then
   git clone https://github.com/flutter/flutter.git -b stable --depth 1 flutter
 fi
 
-# Add Flutter to path
-export PATH="$PATH:`pwd`/flutter/bin"
+# Add Flutter to path (Prepend to ensure we use our version)
+export PATH="$(pwd)/flutter/bin:$PATH"
 
 # Disable analytics to save resources
 flutter config --no-analytics
