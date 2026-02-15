@@ -124,61 +124,56 @@ class _QuizScreenState extends State<QuizScreen> {
             // Question navigator sidebar on wide screens
             if (isWide)
               Container(
-                width: 240,
-                padding: const EdgeInsets.all(16),
+                width: 260,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 decoration: BoxDecoration(
                   color: const Color(0xFF0D1B2A),
-                  border: Border(right: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.5))),
+                  border: Border(right: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.3))),
                 ),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('QUESTIONS', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1)),
-                  const SizedBox(height: 12),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12, bottom: 16),
+                    child: Text('QUESTIONS', style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.5), fontSize: 11, fontWeight: FontWeight.w600, letterSpacing: 1.5)),
+                  ),
                   Expanded(child: ListView.builder(
                     itemCount: _questions.length,
                     itemBuilder: (_, i) {
                       final isActive = i == _currentQ;
                       final isAnswered = _answers.containsKey(_questions[i].id);
-                      return InkWell(
-                        onTap: () => setState(() => _currentQ = i),
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isActive ? AppTheme.accent.withValues(alpha: 0.12) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                            border: isActive ? Border.all(color: AppTheme.accent.withValues(alpha: 0.2)) : null,
-                          ),
-                          child: Row(children: [
-                            Container(
-                              width: 28, height: 28,
-                              decoration: BoxDecoration(
-                                color: isAnswered ? AppTheme.success.withValues(alpha: 0.15) : AppTheme.surfaceLight,
-                                borderRadius: BorderRadius.circular(7),
-                              ),
-                              child: Center(child: isAnswered
-                                ? const Icon(Icons.check_rounded, color: AppTheme.success, size: 16)
-                                : Text('${i + 1}', style: TextStyle(color: isActive ? AppTheme.accent : AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
-                              ),
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: InkWell(
+                          onTap: () => setState(() => _currentQ = i),
+                          borderRadius: BorderRadius.circular(12),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isActive ? AppTheme.accent.withValues(alpha: 0.1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(child: Text('Question ${i + 1}', style: TextStyle(
-                              color: isActive ? AppTheme.accent : AppTheme.textSecondary, fontSize: 13,
-                              fontWeight: isActive ? FontWeight.w600 : FontWeight.normal), overflow: TextOverflow.ellipsis)),
-                          ]),
+                            child: Row(children: [
+                              Container(
+                                width: 24, height: 24,
+                                decoration: BoxDecoration(
+                                  color: isAnswered ? AppTheme.success.withValues(alpha: 0.15) : AppTheme.surfaceLight.withValues(alpha: 0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(child: isAnswered
+                                  ? const Icon(Icons.check_rounded, color: AppTheme.success, size: 14)
+                                  : Text('${i + 1}', style: TextStyle(color: isActive ? AppTheme.accent : AppTheme.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(child: Text('Question ${i + 1}', style: TextStyle(
+                                color: isActive ? AppTheme.accent : AppTheme.textSecondary, fontSize: 14,
+                                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal), overflow: TextOverflow.ellipsis)),
+                            ]),
+                          ),
                         ),
                       );
                     },
                   )),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(color: AppTheme.surfaceLight, borderRadius: BorderRadius.circular(8)),
-                    child: Row(children: [
-                      const Icon(Icons.check_circle_outline_rounded, color: AppTheme.success, size: 16),
-                      const SizedBox(width: 8),
-                      Text('${_answers.length}/${_questions.length} answered', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-                    ]),
-                  ),
                 ]),
               ),
             // Main question area — centered
@@ -205,12 +200,14 @@ class _QuizScreenState extends State<QuizScreen> {
                       backgroundColor: AppTheme.surfaceLight, color: AppTheme.accent)),
                 ),
                 // Question content
-                Expanded(child: ListView(padding: const EdgeInsets.all(28), children: [
+                Expanded(child: ListView(padding: const EdgeInsets.all(32), children: [
                   _TypeBadge(type: q.type),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   if (q.type != QuestionType.pickAndPlace)
-                    Text(q.questionText, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 28),
+                    Text(q.questionText, style: const TextStyle(
+                      color: AppTheme.textPrimary, fontSize: 22, fontWeight: FontWeight.bold, height: 1.4
+                    )),
+                  const SizedBox(height: 40),
                   _buildAnswerWidget(q),
                 ])),
                 // Navigation
@@ -254,17 +251,29 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Widget _topBar() {
     return Container(
-      height: 64,
+      height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1B2A).withValues(alpha: 0.5),
+        color: const Color(0xFF0D1B2A).withValues(alpha: 0.8),
         border: Border(bottom: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.3))),
       ),
       child: Row(children: [
-        IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary)),
-        const SizedBox(width: 8),
+        IconButton(
+          onPressed: () => Navigator.pop(context), 
+          icon: const Icon(Icons.close_rounded, color: AppTheme.textSecondary),
+          tooltip: 'Exit Quiz',
+        ),
+        const SizedBox(width: 16),
         Expanded(
-          child: Text(widget.quiz.title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 20, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(widget.quiz.title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+              const SizedBox(height: 2),
+              Text('In progress...', style: TextStyle(color: AppTheme.accentGold.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w500)),
+            ],
+          ),
         ),
       ]),
     );

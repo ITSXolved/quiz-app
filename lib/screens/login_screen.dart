@@ -97,155 +97,163 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           child: SingleChildScrollView(
             child: FadeTransition(
               opacity: _fadeAnim,
-              child: Container(
-                width: 400,
-                margin: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // App Icon
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)],
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 450),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // App Icon
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)],
+                          ),
+                          borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.accent.withValues(alpha: 0.3),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                        borderRadius: BorderRadius.circular(22),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.accent.withValues(alpha: 0.3),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+                        child: const Icon(Icons.menu_book_rounded, size: 40, color: Colors.white),
                       ),
-                      child: const Icon(Icons.menu_book_rounded, size: 40, color: Colors.white),
-                    ),
-                    const SizedBox(height: 18),
-                    const Text(
-                      'Noor-e-Quran',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                        letterSpacing: 1,
+                      const SizedBox(height: 18),
+                      const Text(
+                        'Noor-e-Quran',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Illuminate your knowledge',
-                      style: TextStyle(color: AppTheme.accentGold, fontSize: 14),
-                    ),
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentGold.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.2)),
+                        ),
+                        child: const Text(
+                          'Illuminate your knowledge',
+                          style: TextStyle(color: AppTheme.accentGold, fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
 
-                    // Login Card
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          padding: const EdgeInsets.all(28),
-                          decoration: BoxDecoration(
-                            color: AppTheme.cardBg.withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppTheme.surfaceLight),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Role Toggle
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: AppTheme.surfaceLight,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.all(4),
-                                child: Row(
-                                  children: [
-                                    _roleTab('Student', !isAdmin, () => setState(() { isAdmin = false; error = null; })),
-                                    _roleTab('Admin', isAdmin, () => setState(() { isAdmin = true; error = null; })),
-                                  ],
+                      Container(
+                        padding: const EdgeInsets.all(32),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardBg.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.5)),
+                          boxShadow: AppTheme.cardShadow,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Role Toggle
+                            Container(
+                              decoration: BoxDecoration(
+                                color: AppTheme.surface.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.3)),
+                              ),
+                              padding: const EdgeInsets.all(6),
+                              child: Row(
+                                children: [
+                                  _roleTab('Student', !isAdmin, () => setState(() { isAdmin = false; error = null; })),
+                                  _roleTab('Admin', isAdmin, () => setState(() { isAdmin = true; error = null; })),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+
+                            // Fields
+                            if (isAdmin) ...[
+                              TextField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: const InputDecoration(
+                                  labelText: 'Email',
+                                  prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accent),
                                 ),
                               ),
-                              const SizedBox(height: 28),
-
-                              // Fields
-                              if (isAdmin) ...[
-                                TextField(
-                                  controller: _emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Email',
-                                    prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accent),
-                                  ),
+                              const SizedBox(height: 16),
+                              TextField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(
+                                  labelText: 'Password',
+                                  prefixIcon: Icon(Icons.lock_outline, color: AppTheme.accent),
                                 ),
-                                const SizedBox(height: 16),
-                                TextField(
-                                  controller: _passwordController,
-                                  obscureText: true,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Password',
-                                    prefixIcon: Icon(Icons.lock_outline, color: AppTheme.accent),
-                                  ),
+                              ),
+                            ] else ...[
+                              TextField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.phone,
+                                decoration: const InputDecoration(
+                                  labelText: 'Phone Number',
+                                  hintText: 'Enter your registered number',
+                                  prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.accent),
                                 ),
-                              ] else ...[
-                                TextField(
-                                  controller: _phoneController,
-                                  keyboardType: TextInputType.phone,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Phone Number',
-                                    hintText: 'Enter your registered number',
-                                    prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.accent),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Login with your registered phone number',
-                                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
-                                  ),
-                                ),
-                              ],
-
-                              if (error != null) ...[
-                                const SizedBox(height: 16),
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.error.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(children: [
-                                    const Icon(Icons.error_outline, color: AppTheme.error, size: 20),
-                                    const SizedBox(width: 8),
-                                    Expanded(child: Text(error!, style: const TextStyle(color: AppTheme.error, fontSize: 13))),
-                                  ]),
-                                ),
-                              ],
-
-                              const SizedBox(height: 24),
-
-                              SizedBox(
-                                width: double.infinity,
-                                height: 48,
-                                child: ElevatedButton(
-                                  onPressed: isLoading ? null : _handleLogin,
-                                  child: isLoading
-                                      ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-                                      : const Text('Login', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                              ),
+                              const SizedBox(height: 8),
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Login with your registered phone number',
+                                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
                                 ),
                               ),
                             ],
-                          ),
+
+                            if (error != null) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.error.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(children: [
+                                  const Icon(Icons.error_outline, color: AppTheme.error, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(error!, style: const TextStyle(color: AppTheme.error, fontSize: 13))),
+                                ]),
+                              ),
+                            ],
+
+                            const SizedBox(height: 24),
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 56,
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : _handleLogin,
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                child: isLoading
+                                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3, color: AppTheme.primaryDark))
+                                    : const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 28),
-                    const Text('© 2026 Zyra Edutech', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-                  ],
+                      const SizedBox(height: 28),
+                      const Text('© 2026 Zyra Edutech', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -95,10 +95,10 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
           children: [
             // Top bar
             Container(
-              height: 64,
+              height: 72,
               padding: const EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
-                color: const Color(0xFF0D1B2A).withValues(alpha: 0.5),
+                color: const Color(0xFF0D1B2A).withValues(alpha: 0.8),
                 border: Border(bottom: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.3))),
               ),
               child: Row(children: [
@@ -106,8 +106,8 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.textPrimary),
                 ),
-                const SizedBox(width: 8),
-                const Text('Create New Quiz', style: TextStyle(color: AppTheme.textPrimary, fontSize: 20, fontWeight: FontWeight.w600)),
+                const SizedBox(width: 16),
+                const Text('Create New Quiz', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
               ]),
             ),
 
@@ -164,26 +164,31 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
 
                       // Status Toggle
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppTheme.cardBg,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppTheme.surfaceLight),
+                          color: AppTheme.cardBg.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.5)),
                         ),
                         child: Row(children: [
-                          const Icon(Icons.published_with_changes_rounded, color: AppTheme.textSecondary),
-                          const SizedBox(width: 12),
-                          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            const Text('Quiz Status', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w600)),
-                            const SizedBox(height: 2),
-                            Text(_status == QuizStatus.published ? 'Visible to students' : 'Hidden (Draft)',
-                              style: TextStyle(color: _status == QuizStatus.published ? AppTheme.success : AppTheme.textSecondary, fontSize: 12)),
-                          ]),
-                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(color: AppTheme.textSecondary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+                            child: const Icon(Icons.published_with_changes_rounded, color: AppTheme.textSecondary, size: 22),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              const Text('Quiz Status', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 15)),
+                              const SizedBox(height: 4),
+                              Text(_status == QuizStatus.published ? 'Visible to students' : 'Hidden (Draft mode)',
+                                style: TextStyle(color: _status == QuizStatus.published ? AppTheme.success : AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w500)),
+                            ]),
+                          ),
                           Switch(
                             value: _status == QuizStatus.published,
-                            activeTrackColor: AppTheme.success,
-                            activeColor: Colors.white,
+                            activeTrackColor: AppTheme.success.withValues(alpha: 0.5),
+                            activeColor: AppTheme.success,
                             onChanged: (v) => setState(() => _status = v ? QuizStatus.published : QuizStatus.draft),
                           ),
                         ]),
@@ -224,18 +229,18 @@ class _CreateQuizScreenState extends State<CreateQuizScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.cardBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppTheme.surfaceLight),
+            color: AppTheme.cardBg.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.5)),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Schedule Date', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-            const SizedBox(height: 4),
+            const Text('Schedule Date', style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
             Row(children: [
-              const Icon(Icons.calendar_today_rounded, color: AppTheme.accent, size: 18),
-              const SizedBox(width: 8),
+              const Icon(Icons.calendar_today_rounded, color: AppTheme.accent, size: 20),
+              const SizedBox(width: 12),
               Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.w600)),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15, fontWeight: FontWeight.bold)),
             ]),
           ]),
         ),

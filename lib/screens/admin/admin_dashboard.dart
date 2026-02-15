@@ -74,26 +74,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
             colors: [AppTheme.primaryDark, Color(0xFF0A1628)],
           ),
         ),
-        child: Row(
-          children: [
-            // Sidebar
-            if (!isNarrow)
-              _buildSidebar(isWide),
-
-            // Main content area
-            Expanded(
-              child: Column(
-                children: [
-                  _buildTopBar(isNarrow),
-                  Expanded(
-                    child: _isLoading
-                        ? const Center(child: CircularProgressIndicator(color: AppTheme.accent))
-                        : _buildContent(),
-                  ),
-                ],
+        child: SafeArea(
+          child: Row(
+            children: [
+              // Sidebar
+              if (!isNarrow)
+                _buildSidebar(isWide),
+        
+              // Main content area
+              Expanded(
+                child: Column(
+                  children: [
+                    _buildTopBar(isNarrow),
+                    Expanded(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator(color: AppTheme.accent))
+                          : _buildContent(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       // Mobile drawer
@@ -267,16 +269,25 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
           const SizedBox(width: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: AppTheme.surfaceLight.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(children: [
-              const Icon(Icons.person_rounded, color: AppTheme.accent, size: 18),
-              const SizedBox(width: 8),
-              Text(widget.adminData['email'] ?? 'Admin', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-            ]),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person_rounded, color: AppTheme.accent, size: 16),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    widget.adminData['email']?.split('@')[0] ?? 'Admin', 
+                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(width: 8),
           IconButton(
@@ -315,36 +326,42 @@ class _AdminDashboardState extends State<AdminDashboard> {
         children: [
           // Welcome banner
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [AppTheme.accent.withValues(alpha: 0.2), AppTheme.accent.withValues(alpha: 0.05)]),
-              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [AppTheme.accent.withValues(alpha: 0.15), AppTheme.accent.withValues(alpha: 0.02)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(color: AppTheme.accent.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('Welcome back, Admin', style: TextStyle(color: AppTheme.textPrimary, fontSize: 22, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 6),
-                    Text('Manage your quizzes and track student progress', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                    Text('Welcome back, Admin', style: TextStyle(color: AppTheme.textPrimary, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                    const SizedBox(height: 8),
+                    Text('You have ${_quizzes.length} quizzes and ${_students.length} students to manage today.', 
+                      style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.8), fontSize: 14)),
                   ]),
                 ),
                 Container(
                   width: 56, height: 56,
                   decoration: BoxDecoration(
-                    color: AppTheme.accent.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
+                    color: AppTheme.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                   child: const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.accent, size: 28),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Stats grid
           LayoutBuilder(builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 600;
             final crossCount = constraints.maxWidth > 800 ? 4 : 2;
             return GridView.count(
               crossAxisCount: crossCount,
@@ -352,7 +369,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               crossAxisSpacing: 16,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 2.2,
+              childAspectRatio: isMobile ? 1.8 : 2.2,
               children: [
                 _StatCard(icon: Icons.people_rounded, label: 'Total Students', value: '${_students.length}', color: AppTheme.accent),
                 _StatCard(icon: Icons.quiz_rounded, label: 'Total Quizzes', value: '${_quizzes.length}', color: AppTheme.accentGold),
@@ -366,11 +383,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
           // Recent Activity
           Row(
             children: [
-              const Text('Recent Quizzes', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.w600)),
+              const Icon(Icons.history_rounded, color: AppTheme.accent, size: 22),
+              const SizedBox(width: 12),
+              const Text('Recent Quizzes', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
               TextButton.icon(
                 onPressed: () => setState(() => _currentIndex = 1),
-                icon: const Text('View All', style: TextStyle(color: AppTheme.accent, fontSize: 13)),
+                icon: const Text('View All', style: TextStyle(color: AppTheme.accent, fontSize: 13, fontWeight: FontWeight.bold)),
                 label: const Icon(Icons.arrow_forward_rounded, color: AppTheme.accent, size: 16),
               ),
             ],
@@ -390,12 +409,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
     final recent = _quizzes.take(8).toList();
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.surfaceLight),
+        color: AppTheme.cardBg.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.5)),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
@@ -480,12 +499,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
           // Quizzes data table
           Container(
             decoration: BoxDecoration(
-              color: AppTheme.cardBg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.surfaceLight),
+              color: AppTheme.cardBg.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.5)),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
@@ -615,37 +634,51 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 22),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmall = constraints.maxWidth < 180;
+        return Container(
+          padding: EdgeInsets.all(isSmall ? 12 : 16),
+          decoration: BoxDecoration(
+            color: AppTheme.cardBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.withValues(alpha: 0.15)),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color)),
-                const SizedBox(height: 2),
-                Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12), overflow: TextOverflow.ellipsis),
-              ],
-            ),
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(isSmall ? 8 : 10),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: isSmall ? 18 : 22),
+              ),
+              SizedBox(width: isSmall ? 10 : 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      label, 
+                      style: TextStyle(color: AppTheme.textSecondary, fontSize: isSmall ? 10 : 12), 
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 }

@@ -28,35 +28,36 @@ class _StudentListScreenState extends State<StudentListScreen> {
       children: [
         // Search bar
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: AppTheme.cardBg,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.surfaceLight),
+            color: AppTheme.cardBg.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.surfaceLight.withValues(alpha: 0.5)),
           ),
           child: Row(children: [
-            const Icon(Icons.search_rounded, color: AppTheme.textSecondary, size: 20),
-            const SizedBox(width: 12),
+            const Icon(Icons.search_rounded, color: AppTheme.accent, size: 22),
+            const SizedBox(width: 14),
             Expanded(
               child: TextField(
                 onChanged: (v) => setState(() => _search = v),
-                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15),
                 decoration: const InputDecoration(
-                  hintText: 'Search students by name or phone...',
+                  hintText: 'Search students...',
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 16),
                 ),
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(color: AppTheme.accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-              child: Text('${_filtered.length} students', style: const TextStyle(color: AppTheme.accent, fontSize: 12, fontWeight: FontWeight.w600)),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(color: AppTheme.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+              child: Text('${_filtered.length} Students', style: const TextStyle(color: AppTheme.accent, fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ]),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
 
         // Data table
         Container(
@@ -105,8 +106,8 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     DataCell(Text(s.email ?? '—', style: TextStyle(color: s.email != null ? AppTheme.textPrimary : AppTheme.textSecondary))),
                     DataCell(Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
-                      child: const Text('Completed', style: TextStyle(color: AppTheme.success, fontSize: 11, fontWeight: FontWeight.w600)),
+                      decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                      child: const Text('PAID', style: TextStyle(color: AppTheme.success, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                     )),
                     DataCell(IconButton(
                       onPressed: () => _showProgress(s),

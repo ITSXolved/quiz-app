@@ -61,14 +61,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
         decoration: const BoxDecoration(
           gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppTheme.primaryDark, Color(0xFF0A1628)]),
         ),
-        child: Row(children: [
-          if (!isNarrow) _buildSidebar(isWide),
-          Expanded(child: Column(children: [
-            _buildTopBar(isNarrow),
-            Expanded(child: _isLoading ? const Center(child: CircularProgressIndicator(color: AppTheme.accent))
-              : IndexedStack(index: _currentIndex, children: [_buildHome(), _buildScores(), _buildAnalytics()])),
-          ])),
-        ]),
+        child: SafeArea(
+          child: Row(children: [
+            if (!isNarrow) _buildSidebar(isWide),
+            Expanded(child: Column(children: [
+              _buildTopBar(isNarrow),
+              Expanded(child: _isLoading ? const Center(child: CircularProgressIndicator(color: AppTheme.accent))
+                : IndexedStack(index: _currentIndex, children: [_buildHome(), _buildScores(), _buildAnalytics()])),
+            ])),
+          ]),
+        ),
       ),
       drawer: isNarrow ? _buildDrawer() : null,
     );
@@ -239,13 +241,49 @@ class _StudentDashboardState extends State<StudentDashboard> {
     });
 
     return RefreshIndicator(onRefresh: _loadData, color: AppTheme.accent, child: ListView(padding: const EdgeInsets.all(28), children: [
+      // Welcome banner
+      Container(
+        padding: const EdgeInsets.all(24),
+        margin: const EdgeInsets.only(bottom: 32),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTheme.accent.withValues(alpha: 0.15), AppTheme.accent.withValues(alpha: 0.02)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppTheme.accent.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Salam, ${widget.student.name.split(' ')[0]}!', 
+                  style: const TextStyle(color: AppTheme.textPrimary, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                const SizedBox(height: 8),
+                Text('You have ${_availableQuizzes.length - _completedQuizIds.length} quizzes pending for review.', 
+                  style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.8), fontSize: 14)),
+              ]),
+            ),
+            Container(
+              width: 50, height: 50,
+              decoration: BoxDecoration(
+                color: AppTheme.accent.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.accent, size: 24),
+            ),
+          ],
+        ),
+      ),
+
       // Quizzes List
       Row(children: [
-        const Icon(Icons.quiz_rounded, color: AppTheme.accent, size: 24),
-        const SizedBox(width: 10),
-        Text('Available Quizzes', style: TextStyle(color: AppTheme.textPrimary, fontSize: 20, fontWeight: FontWeight.w600)),
+        Icon(Icons.rocket_launch_rounded, color: AppTheme.accent, size: 22),
+        const SizedBox(width: 12),
+        const Text('Pick up where you left off', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
       ]),
-      const SizedBox(height: 16),
+      const SizedBox(height: 20),
       if (sortedQuizzes.isEmpty)
         _buildEmptyState('No quizzes available', 'Check back later for new quizzes.')
       else
@@ -282,60 +320,71 @@ class _StudentDashboardState extends State<StudentDashboard> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: isCompleted ? AppTheme.success.withValues(alpha: 0.3) : AppTheme.surfaceLight),
+        color: AppTheme.cardBg.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isCompleted ? AppTheme.success.withValues(alpha: 0.2) : AppTheme.surfaceLight.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isCompleted ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: (isCompleted ? AppTheme.success : AppTheme.accent).withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
-              isCompleted ? Icons.check_circle_rounded : Icons.article_rounded,
+              isCompleted ? Icons.check_circle_rounded : Icons.menu_book_rounded,
               color: isCompleted ? AppTheme.success : AppTheme.accent,
-              size: 24,
+              size: 26,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(quiz.title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
-                Text(
-                  '${quiz.questionCount} Questions • ${quiz.durationMinutes} Min • ${quiz.quizDate.day}/${quiz.quizDate.month}/${quiz.quizDate.year}',
-                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                Text(quiz.title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 12,
+                  children: [
+                    _quizInfoChip(Icons.timer_outlined, '${quiz.durationMinutes}m'),
+                    _quizInfoChip(Icons.help_outline_rounded, '${quiz.questionCount} Qs'),
+                    _quizInfoChip(Icons.calendar_today_rounded, '${quiz.quizDate.day}/${quiz.quizDate.month}'),
+                  ],
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           if (!isCompleted)
-            FilledButton(
+            ElevatedButton(
               onPressed: () async {
                 await Navigator.push(context, MaterialPageRoute(builder: (_) => QuizScreen(student: widget.student, quiz: quiz)));
                 _loadData();
               },
-              style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.accent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                backgroundColor: AppTheme.accent.withValues(alpha: 0.9),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Start'),
+              child: const Text('Start', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
             )
           else
-            const Chip(
-              label: Text('Completed', style: TextStyle(fontSize: 12)),
-              backgroundColor: Colors.transparent,
-              side: BorderSide(color: AppTheme.success),
-              labelStyle: TextStyle(color: AppTheme.success),
-            ),
+            const Icon(Icons.chevron_right_rounded, color: AppTheme.textSecondary),
         ],
       ),
+    );
+  }
+
+  Widget _quizInfoChip(IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppTheme.textSecondary.withValues(alpha: 0.6)),
+        const SizedBox(width: 4),
+        Text(label, style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.8), fontSize: 12)),
+      ],
     );
   }
 

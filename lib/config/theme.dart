@@ -15,6 +15,29 @@ class AppTheme {
   static const Color error = Color(0xFFFF6B6B);
   static const Color warning = Color(0xFFFFD93D);
   static const Color cardBg = Color(0xFF1A2D42);
+  static const Color cardBgLight = Color(0xFFFFFFFF);
+
+  // Shadows
+  static List<BoxShadow> get cardShadow => [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.1),
+      blurRadius: 12,
+      offset: const Offset(0, 4),
+    ),
+  ];
+
+  static List<BoxShadow> get neumorphicShadow => [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.2),
+      blurRadius: 10,
+      offset: const Offset(4, 4),
+    ),
+    BoxShadow(
+      color: Colors.white.withValues(alpha: 0.05),
+      blurRadius: 10,
+      offset: const Offset(-4, -4),
+    ),
+  ];
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -85,31 +108,33 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: accent,
           foregroundColor: primaryDark,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           textStyle: GoogleFonts.poppins(
             fontSize: 16,
             fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceLight,
+        fillColor: surfaceLight.withValues(alpha: 0.5),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: textSecondary.withValues(alpha: 0.2)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: textSecondary.withValues(alpha: 0.1)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: accent, width: 2),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: accent, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        hintStyle: GoogleFonts.poppins(color: textSecondary),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        hintStyle: GoogleFonts.poppins(color: textSecondary.withValues(alpha: 0.6), fontSize: 14),
         labelStyle: GoogleFonts.poppins(color: textSecondary),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
