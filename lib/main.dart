@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/supabase_config.dart';
 import 'config/theme.dart';
@@ -24,6 +26,13 @@ class NoorEQuranApp extends StatelessWidget {
       title: 'Noor-e-Quran',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en', 'US')],
       home: const SplashScreen(),
     );
   }
@@ -93,28 +102,34 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft, end: Alignment.bottomRight,
-            colors: [AppTheme.primaryDark, AppTheme.primaryMid, AppTheme.primaryDark],
+            colors: [AppTheme.primaryDark, AppTheme.accent.withValues(alpha: 0.6), AppTheme.primaryMid],
           ),
         ),
         child: Center(
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
             ScaleTransition(scale: _scale, child: Container(
-              width: 100, height: 100,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)]),
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [BoxShadow(color: AppTheme.accent.withValues(alpha: 0.4), blurRadius: 40, offset: const Offset(0, 12))]),
-              child: const Icon(Icons.menu_book_rounded, size: 50, color: Colors.white))),
+              height: 100,
+              constraints: const BoxConstraints(maxWidth: 280),
+              child: Image.asset('assets/images/zyra_logo.png', fit: BoxFit.contain),
+            )),
             const SizedBox(height: 24),
             FadeTransition(opacity: _fade, child: Text('Noor-e-Quran',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(letterSpacing: 1))),
+              style: Theme.of(context).textTheme.headlineLarge)),
             const SizedBox(height: 8),
-            FadeTransition(opacity: _fade, child: Text('Illuminate your knowledge',
-              style: TextStyle(color: AppTheme.accentGold, fontSize: 14))),
+            FadeTransition(opacity: _fade, child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.accentGold.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.2)),
+              ),
+              child: Text('Illuminate your knowledge',
+                style: TextStyle(color: AppTheme.accentGold, fontSize: 16, fontWeight: FontWeight.w500, letterSpacing: 1.2)),
+            )),
             const SizedBox(height: 40),
             FadeTransition(opacity: _fade, child: const SizedBox(
               width: 28, height: 28,
-              child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.accent))),
+              child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.accentGold))),
           ]),
         ),
       ),

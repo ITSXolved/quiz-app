@@ -6,9 +6,13 @@ import '../../models/response.dart';
 import '../../models/quiz.dart';
 import '../../services/auth_service.dart';
 import '../../services/student_service.dart';
+import 'student_daily_view.dart';
 import '../../services/question_service.dart';
 import '../login_screen.dart';
 import 'quiz_screen.dart';
+import '../../services/daily_note_service.dart';
+import '../../models/daily_topic.dart';
+// TopicViewerScreen is in student_daily_view.dart
 
 class StudentDashboard extends StatefulWidget {
   final Student student;
@@ -21,6 +25,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   int _currentIndex = 0;
   List<StudentScore> _scores = [];
   List<Quiz> _availableQuizzes = [];
+  List<DailyTopic> _todayTopics = []; // New state variable
   Set<String> _completedQuizIds = {};
   bool _isLoading = true;
   bool _sidebarCollapsed = false;
@@ -33,12 +38,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
     try {
       final scores = await StudentService.getStudentScores(widget.student.id);
       final quizzes = await QuestionService.getPublishedQuizzes();
+      final todayTopics = await DailyNoteService.getTopicsForDate(DateTime.now());
+      
       
       final completed = scores.map((s) => s.quizId).whereType<String>().toSet();
 
       setState(() {
         _scores = scores;
         _availableQuizzes = quizzes;
+        _todayTopics = todayTopics.where((t) => t.isActive).toList();
         _completedQuizIds = completed;
         _isLoading = false;
       });
@@ -46,10 +54,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
   }
 
   static const _navItems = [
-    _NavItem(Icons.home_rounded, 'Home'),
-    _NavItem(Icons.score_rounded, 'Scores'),
+    _NavItem(Icons.dashboard_rounded, 'Home'),
+    _NavItem(Icons.calendar_today_rounded, 'Daily Study'),
+    _NavItem(Icons.score_rounded, 'My Scores'),
     _NavItem(Icons.analytics_rounded, 'Analytics'),
   ];
+
+  Future<void> _startQuiz(Quiz quiz) async {
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => QuizScreen(student: widget.student, quiz: quiz)));
+    _loadData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +73,15 @@ class _StudentDashboardState extends State<StudentDashboard> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppTheme.primaryDark, Color(0xFF0A1628)]),
+          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppTheme.primaryDark, AppTheme.surface]),
         ),
         child: SafeArea(
           child: Row(children: [
             if (!isNarrow) _buildSidebar(isWide),
             Expanded(child: Column(children: [
               _buildTopBar(isNarrow),
-              Expanded(child: _isLoading ? const Center(child: CircularProgressIndicator(color: AppTheme.accent))
-                : IndexedStack(index: _currentIndex, children: [_buildHome(), _buildScores(), _buildAnalytics()])),
+              Expanded(child: _isLoading ? const Center(child: CircularProgressIndicator(color: AppTheme.accentGold))
+                : IndexedStack(index: _currentIndex, children: [_buildHome(), StudentDailyView(student: widget.student, allQuizzes: _availableQuizzes, onStartQuiz: _startQuiz), _buildScores(), _buildAnalytics()])),
             ])),
           ]),
         ),
@@ -82,7 +96,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       duration: const Duration(milliseconds: 200),
       width: collapsed ? 72 : 240,
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1B2A),
+        color: AppTheme.surface,
         border: Border(right: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.5))),
       ),
       child: Column(children: [
@@ -90,18 +104,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
           height: 64,
           padding: EdgeInsets.symmetric(horizontal: collapsed ? 14 : 20),
           child: Row(children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)]),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+            SizedBox(
+              height: 40,
+              width: collapsed ? 40 : 140,
+              child: Image.asset('assets/images/zyra_logo.png', fit: BoxFit.contain),
             ),
-            if (!collapsed) ...[
-              const SizedBox(width: 12),
-              const Expanded(child: Text('Noor-e-Quran', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700, fontSize: 16))),
-            ],
           ]),
         ),
         Divider(color: AppTheme.surfaceLight.withValues(alpha: 0.3), height: 1),
@@ -122,17 +129,17 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 margin: EdgeInsets.symmetric(horizontal: collapsed ? 10 : 12, vertical: 2),
                 padding: EdgeInsets.symmetric(horizontal: collapsed ? 0 : 14, vertical: 12),
                 decoration: BoxDecoration(
-                  color: isActive ? AppTheme.accent.withValues(alpha: 0.12) : Colors.transparent,
+                  color: isActive ? AppTheme.accentGold.withValues(alpha: 0.12) : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
-                  border: isActive ? Border.all(color: AppTheme.accent.withValues(alpha: 0.2)) : null,
+                  border: isActive ? Border.all(color: AppTheme.accentGold.withValues(alpha: 0.2)) : null,
                 ),
                 child: Row(
                   mainAxisAlignment: collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                   children: [
-                    Icon(item.icon, color: isActive ? AppTheme.accent : AppTheme.textSecondary, size: 22),
+                    Icon(item.icon, color: isActive ? AppTheme.accentGold : AppTheme.textSecondary, size: 22),
                     if (!collapsed) ...[
                       const SizedBox(width: 12),
-                      Text(item.label, style: TextStyle(color: isActive ? AppTheme.accent : AppTheme.textSecondary,
+                      Text(item.label, style: TextStyle(color: isActive ? AppTheme.accentGold : AppTheme.textSecondary,
                         fontWeight: isActive ? FontWeight.w600 : FontWeight.normal, fontSize: 14)),
                     ],
                   ],
@@ -154,21 +161,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xFF0D1B2A),
+      backgroundColor: AppTheme.surface,
       child: SafeArea(child: Column(children: [
         Container(
           padding: const EdgeInsets.all(20),
           child: Row(children: [
-            Container(
-              width: 40, height: 40,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)]),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 22),
+            SizedBox(
+              height: 45,
+              width: 160,
+              child: Image.asset('assets/images/zyra_logo.png', fit: BoxFit.contain),
             ),
-            const SizedBox(width: 12),
-            const Text('Noor-e-Quran', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700, fontSize: 18)),
           ]),
         ),
         Divider(color: AppTheme.surfaceLight.withValues(alpha: 0.3), height: 1),
@@ -177,9 +179,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
           final item = _navItems[i];
           final isActive = _currentIndex == i;
           return ListTile(
-            leading: Icon(item.icon, color: isActive ? AppTheme.accent : AppTheme.textSecondary),
-            title: Text(item.label, style: TextStyle(color: isActive ? AppTheme.accent : AppTheme.textPrimary)),
-            selected: isActive, selectedTileColor: AppTheme.accent.withValues(alpha: 0.1),
+            leading: Icon(item.icon, color: isActive ? AppTheme.accentGold : AppTheme.textSecondary),
+            title: Text(item.label, style: TextStyle(color: isActive ? AppTheme.accentGold : AppTheme.textPrimary)),
+            selected: isActive, selectedTileColor: AppTheme.accentGold.withValues(alpha: 0.1),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             onTap: () { setState(() => _currentIndex = i); Navigator.pop(context); },
           );
@@ -193,7 +195,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1B2A).withValues(alpha: 0.5),
+        color: AppTheme.surface.withValues(alpha: 0.5),
         border: Border(bottom: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.3))),
       ),
       child: Row(children: [
@@ -208,8 +210,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
           child: Row(children: [
             Container(
               width: 28, height: 28,
-              decoration: BoxDecoration(color: AppTheme.accent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(7)),
-              child: Center(child: Text(widget.student.name[0].toUpperCase(), style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w600, fontSize: 13))),
+              decoration: BoxDecoration(color: AppTheme.accentGold.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(7)),
+              child: Center(child: Text(widget.student.name[0].toUpperCase(), style: const TextStyle(color: AppTheme.accentGold, fontWeight: FontWeight.w600, fontSize: 13))),
             ),
             const SizedBox(width: 8),
             Text(widget.student.name, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
@@ -240,19 +242,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
       return b.quizDate.compareTo(a.quizDate); // Newest first
     });
 
-    return RefreshIndicator(onRefresh: _loadData, color: AppTheme.accent, child: ListView(padding: const EdgeInsets.all(28), children: [
+    return RefreshIndicator(onRefresh: _loadData, color: AppTheme.accentGold, child: ListView(padding: const EdgeInsets.all(28), children: [
       // Welcome banner
       Container(
         padding: const EdgeInsets.all(24),
         margin: const EdgeInsets.only(bottom: 32),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppTheme.accent.withValues(alpha: 0.15), AppTheme.accent.withValues(alpha: 0.02)],
+            colors: [AppTheme.accentGold.withValues(alpha: 0.15), AppTheme.accentGold.withValues(alpha: 0.02)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppTheme.accent.withValues(alpha: 0.2)),
+          border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
@@ -268,18 +270,43 @@ class _StudentDashboardState extends State<StudentDashboard> {
             Container(
               width: 50, height: 50,
               decoration: BoxDecoration(
-                color: AppTheme.accent.withValues(alpha: 0.1),
+                color: AppTheme.accentGold.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.accent, size: 24),
+              child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.accentGold, size: 24),
             ),
           ],
         ),
       ),
 
+      // Today's Learning Section
+      if (_todayTopics.isNotEmpty || sortedQuizzes.any((q) => _isSameDay(q.quizDate, DateTime.now()))) ...[
+        Row(children: [
+           Icon(Icons.today_rounded, color: AppTheme.accentGold, size: 22),
+           const SizedBox(width: 12),
+           const Text("Today's Learning", style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        ]),
+        const SizedBox(height: 16),
+        LayoutBuilder(builder: (context, constraints) {
+          final isWide = constraints.maxWidth > 700;
+          // Calculate item width: if wide, half width minus spacing/2. If narrow, full width.
+          final itemWidth = isWide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+          
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              ..._todayTopics.map((topic) => SizedBox(width: itemWidth, child: _buildTopicCard(topic, isGridItem: true))),
+              ...sortedQuizzes.where((q) => _isSameDay(q.quizDate, DateTime.now())).map((q) => SizedBox(width: itemWidth, child: _buildQuizCard(q, isGridItem: true))),
+            ],
+          );
+        }),
+        const SizedBox(height: 32),
+      ],
+
       // Quizzes List
       Row(children: [
-        Icon(Icons.rocket_launch_rounded, color: AppTheme.accent, size: 22),
+        Icon(Icons.rocket_launch_rounded, color: AppTheme.accentGold, size: 22),
         const SizedBox(width: 12),
         const Text('Pick up where you left off', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
       ]),
@@ -298,7 +325,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
           crossAxisCount: crossCount, mainAxisSpacing: 16, crossAxisSpacing: 16, shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(), childAspectRatio: 2.8,
           children: [
-            _stat(Icons.assignment_turned_in_rounded, 'Quizzes Taken', '${_scores.length}', AppTheme.accent),
+            _stat(Icons.assignment_turned_in_rounded, 'Quizzes Taken', '${_scores.length}', AppTheme.accentGold),
             _stat(Icons.percent_rounded, 'Avg Score', '${avg.toStringAsFixed(0)}%', AppTheme.accentGold),
             _stat(Icons.local_fire_department_rounded, 'Current Streak', '${_streak()} days', AppTheme.warning),
           ],
@@ -314,10 +341,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
     ]));
   }
 
-  Widget _buildQuizCard(Quiz quiz) {
+  Widget _buildQuizCard(Quiz quiz, {bool isGridItem = false}) {
     final isCompleted = _completedQuizIds.contains(quiz.id);
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: isGridItem ? EdgeInsets.zero : const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTheme.cardBg.withValues(alpha: 0.4),
@@ -329,12 +356,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: (isCompleted ? AppTheme.success : AppTheme.accent).withValues(alpha: 0.08),
+              color: (isCompleted ? AppTheme.success : AppTheme.accentGold).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               isCompleted ? Icons.check_circle_rounded : Icons.menu_book_rounded,
-              color: isCompleted ? AppTheme.success : AppTheme.accent,
+              color: isCompleted ? AppTheme.success : AppTheme.accentGold,
               size: 26,
             ),
           ),
@@ -365,7 +392,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                backgroundColor: AppTheme.accent.withValues(alpha: 0.9),
+                backgroundColor: AppTheme.accentGold.withValues(alpha: 0.9),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text('Start', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
@@ -394,7 +421,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(color: AppTheme.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.surfaceLight)),
         child: Row(children: [
-          const Icon(Icons.score_rounded, color: AppTheme.accent, size: 20),
+          const Icon(Icons.score_rounded, color: AppTheme.accentGold, size: 20),
           const SizedBox(width: 12),
           Text('${_scores.length} quiz results', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
         ]),
@@ -409,47 +436,63 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildScoresTable(List<StudentScore> scores) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(color: AppTheme.cardBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppTheme.surfaceLight)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF0D1B2A)),
-            dataRowColor: WidgetStateProperty.all(AppTheme.cardBg),
-            headingTextStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5),
-            dataTextStyle: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
-            columnSpacing: 28,
-            columns: const [
-              DataColumn(label: Text('#')),
-              DataColumn(label: Text('QUIZ')),
-              DataColumn(label: Text('DATE')),
-              DataColumn(label: Text('CORRECT')),
-              DataColumn(label: Text('MARKS')),
-              DataColumn(label: Text('SCORE')),
-            ],
-            rows: List.generate(scores.length, (i) {
-              final s = scores[i];
-              final pct = s.percentage;
-              final color = pct >= 70 ? AppTheme.success : pct >= 40 ? AppTheme.warning : AppTheme.error;
-              return DataRow(cells: [
-                DataCell(Text('${i + 1}', style: const TextStyle(color: AppTheme.textSecondary))),
-                DataCell(ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 200),
-                  child: Text(s.quizTitle ?? 'Quiz', overflow: TextOverflow.ellipsis),
-                )),
-                DataCell(Text('${s.quizDate.day}/${s.quizDate.month}/${s.quizDate.year}')),
-                DataCell(Text('${s.correctAnswers}/${s.totalQuestions}')),
-                DataCell(Text('${s.obtainedMarks}/${s.totalMarks}')),
-                DataCell(Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
-                  child: Text('${pct.toStringAsFixed(0)}%', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
-                )),
-              ]);
-            }),
+        child: LayoutBuilder(builder: (context, constraints) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth < 800 ? 800 : constraints.maxWidth), 
+              child: DataTable(
+              headingRowColor: WidgetStateProperty.all(AppTheme.surface),
+              dataRowColor: WidgetStateProperty.all(AppTheme.cardBg),
+              headingTextStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5),
+              dataTextStyle: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
+              columnSpacing: 28,
+              columns: const [
+                DataColumn(label: Text('#')),
+                DataColumn(label: Text('QUIZ')),
+                DataColumn(label: Text('DATE')),
+                DataColumn(label: Text('READING STATUS')), // New Column
+                DataColumn(label: Text('CORRECT')),
+                DataColumn(label: Text('MARKS')),
+                DataColumn(label: Text('SCORE')),
+              ],
+              rows: List.generate(scores.length, (i) {
+                final s = scores[i];
+                final pct = s.percentage;
+                final color = pct >= 70 ? AppTheme.success : pct >= 40 ? AppTheme.warning : AppTheme.error;
+                return DataRow(cells: [
+                  DataCell(Text('${i + 1}', style: const TextStyle(color: AppTheme.textSecondary))),
+                  DataCell(ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 200),
+                    child: Text(s.quizTitle ?? 'Quiz', overflow: TextOverflow.ellipsis),
+                  )),
+                  DataCell(Text('${s.quizDate.day}/${s.quizDate.month}/${s.quizDate.year}')),
+                  DataCell(Container( // Reading Status Cell
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(4)),
+                    child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.check_circle_outline_rounded, color: AppTheme.success, size: 14),
+                      SizedBox(width: 4),
+                      Text('Completed', style: TextStyle(color: AppTheme.success, fontSize: 11, fontWeight: FontWeight.w500)),
+                    ]),
+                  )),
+                  DataCell(Text('${s.correctAnswers}/${s.totalQuestions}')),
+                  DataCell(Text('${s.obtainedMarks}/${s.totalMarks}')),
+                  DataCell(Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
+                    child: Text('${pct.toStringAsFixed(0)}%', style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+                  )),
+                ]);
+              }),
+            ),
           ),
-        ),
+          );
+        }),
       ),
     );
   }
@@ -524,10 +567,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
           borderData: FlBorderData(show: false), minY: 0, maxY: 100,
           lineBarsData: [LineChartBarData(
             spots: rev.asMap().entries.map((e) => FlSpot(e.key.toDouble(), e.value.percentage)).toList(),
-            isCurved: true, color: AppTheme.accent, barWidth: 3,
+            isCurved: true, color: AppTheme.accentGold, barWidth: 3,
             dotData: FlDotData(show: true, getDotPainter: (spot, percent, bar, index) =>
-              FlDotCirclePainter(radius: 4, color: AppTheme.accent, strokeWidth: 2, strokeColor: Colors.white)),
-            belowBarData: BarAreaData(show: true, color: AppTheme.accent.withValues(alpha: 0.15)),
+              FlDotCirclePainter(radius: 4, color: AppTheme.accentGold, strokeWidth: 2, strokeColor: Colors.white)),
+            belowBarData: BarAreaData(show: true, color: AppTheme.accentGold.withValues(alpha: 0.15)),
           )],
         ))),
       ]),
@@ -594,6 +637,55 @@ class _StudentDashboardState extends State<StudentDashboard> {
         const SizedBox(height: 4),
         Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
       ]),
+    );
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  Widget _buildTopicCard(DailyTopic topic, {bool isGridItem = false}) {
+    return Container(
+      margin: isGridItem ? EdgeInsets.zero : const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () {
+           // Navigate to Topic Viewer
+           Navigator.push(context, MaterialPageRoute(builder: (_) => TopicViewerScreen(topic: topic)));
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppTheme.cardBg.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentGold.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.menu_book_rounded, color: AppTheme.accentGold, size: 26),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(topic.title, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    Text('${topic.topicDate.day}/${topic.topicDate.month}/${topic.topicDate.year}', style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.8), fontSize: 13)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.arrow_forward_rounded, color: AppTheme.accentGold),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

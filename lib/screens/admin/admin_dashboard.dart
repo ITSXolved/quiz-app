@@ -10,6 +10,7 @@ import '../login_screen.dart';
 import 'create_quiz_screen.dart';
 import 'quiz_questions_screen.dart';
 import 'student_list_screen.dart';
+import 'admin_daily_notes_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
   final Map<String, dynamic> adminData;
@@ -21,6 +22,7 @@ class AdminDashboard extends StatefulWidget {
 
 class _AdminDashboardState extends State<AdminDashboard> {
   int _currentIndex = 0;
+  // 0: Overview, 1: Quizzes, 2: Students, 3: Daily Notes
   List<Quiz> _quizzes = [];
   List<Student> _students = [];
   bool _isLoading = true;
@@ -53,10 +55,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  final _navItems = const [
-    _NavItem(Icons.dashboard_rounded, 'Dashboard'),
-    _NavItem(Icons.quiz_rounded, 'Quizzes'),
+  final _navItems = [
+    _NavItem(Icons.dashboard_rounded, 'Overview'),
+    _NavItem(Icons.assignment_rounded, 'Quizzes'),
     _NavItem(Icons.people_rounded, 'Students'),
+    _NavItem(Icons.calendar_today_rounded, 'Daily Notes'),
   ];
 
 
@@ -71,7 +74,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppTheme.primaryDark, Color(0xFF0A1628)],
+            colors: [AppTheme.primaryDark, AppTheme.surface],
           ),
         ),
         child: SafeArea(
@@ -88,7 +91,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     _buildTopBar(isNarrow),
                     Expanded(
                       child: _isLoading
-                          ? const Center(child: CircularProgressIndicator(color: AppTheme.accent))
+                          ? const Center(child: CircularProgressIndicator(color: AppTheme.accentGold))
                           : _buildContent(),
                     ),
                   ],
@@ -109,7 +112,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       duration: const Duration(milliseconds: 200),
       width: collapsed ? 72 : 240,
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1B2A),
+        color: AppTheme.surface,
         border: Border(right: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.5))),
       ),
       child: Column(
@@ -120,20 +123,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: EdgeInsets.symmetric(horizontal: collapsed ? 14 : 20),
             child: Row(
               children: [
-                Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)]),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+                SizedBox(
+                  height: 40,
+                  width: collapsed ? 40 : 140,
+                  child: Image.asset('assets/images/zyra_logo.png', fit: BoxFit.contain),
                 ),
-                if (!collapsed) ...[
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text('Noor-e-Quran', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700, fontSize: 16)),
-                  ),
-                ],
               ],
             ),
           ),
@@ -156,18 +150,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   margin: EdgeInsets.symmetric(horizontal: collapsed ? 10 : 12, vertical: 2),
                   padding: EdgeInsets.symmetric(horizontal: collapsed ? 0 : 14, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isActive ? AppTheme.accent.withValues(alpha: 0.12) : Colors.transparent,
+                    color: isActive ? AppTheme.accentGold.withValues(alpha: 0.12) : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
-                    border: isActive ? Border.all(color: AppTheme.accent.withValues(alpha: 0.2)) : null,
+                    border: isActive ? Border.all(color: AppTheme.accentGold.withValues(alpha: 0.2)) : null,
                   ),
                   child: Row(
                     mainAxisAlignment: collapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                     children: [
-                      Icon(item.icon, color: isActive ? AppTheme.accent : AppTheme.textSecondary, size: 22),
+                      Icon(item.icon, color: isActive ? AppTheme.accentGold : AppTheme.textSecondary, size: 22),
                       if (!collapsed) ...[
                         const SizedBox(width: 12),
                         Text(item.label, style: TextStyle(
-                          color: isActive ? AppTheme.accent : AppTheme.textSecondary,
+                          color: isActive ? AppTheme.accentGold : AppTheme.textSecondary,
                           fontWeight: isActive ? FontWeight.w600 : FontWeight.normal, fontSize: 14)),
                       ],
                     ],
@@ -190,23 +184,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   Widget _buildDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xFF0D1B2A),
+      backgroundColor: AppTheme.surface,
       child: SafeArea(
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.all(20),
               child: Row(children: [
-                Container(
-                  width: 40, height: 40,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)]),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 22),
+                SizedBox(
+                  height: 45,
+                  width: 160,
+                  child: Image.asset('assets/images/zyra_logo.png', fit: BoxFit.contain),
                 ),
-                const SizedBox(width: 12),
-                const Text('Noor-e-Quran', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.w700, fontSize: 18)),
               ]),
             ),
             Divider(color: AppTheme.surfaceLight.withValues(alpha: 0.3), height: 1),
@@ -215,10 +204,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
               final item = _navItems[i];
               final isActive = _currentIndex == i;
               return ListTile(
-                leading: Icon(item.icon, color: isActive ? AppTheme.accent : AppTheme.textSecondary),
-                title: Text(item.label, style: TextStyle(color: isActive ? AppTheme.accent : AppTheme.textPrimary)),
+                leading: Icon(item.icon, color: isActive ? AppTheme.accentGold : AppTheme.textSecondary),
+                title: Text(item.label, style: TextStyle(color: isActive ? AppTheme.accentGold : AppTheme.textPrimary)),
                 selected: isActive,
-                selectedTileColor: AppTheme.accent.withValues(alpha: 0.1),
+                selectedTileColor: AppTheme.accentGold.withValues(alpha: 0.1),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 onTap: () {
                   setState(() => _currentIndex = i);
@@ -237,15 +226,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1B2A).withValues(alpha: 0.5),
+        color: AppTheme.surface.withValues(alpha: 0.5),
         border: Border(bottom: BorderSide(color: AppTheme.surfaceLight.withValues(alpha: 0.3))),
       ),
       child: Row(
         children: [
           if (isNarrow)
-            IconButton(
-              onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu_rounded, color: AppTheme.textPrimary),
+            Builder(
+              builder: (context) => IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.menu_rounded, color: AppTheme.textPrimary),
+              ),
             ),
           Text(
             _navItems[_currentIndex].label,
@@ -261,7 +252,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               icon: const Icon(Icons.add_rounded, size: 18),
               label: const Text('Create Quiz'),
               style: FilledButton.styleFrom(
-                backgroundColor: AppTheme.accent,
+                backgroundColor: AppTheme.accentGold,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -277,7 +268,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.person_rounded, color: AppTheme.accent, size: 16),
+                const Icon(Icons.person_rounded, color: AppTheme.accentGold, size: 16),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -310,6 +301,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       case 0: return _buildOverview();
       case 1: return _buildQuizzesTable();
       case 2: return StudentListScreen(students: _students);
+      case 3: return const AdminDailyNotesScreen();
       default: return _buildOverview();
     }
   }
@@ -320,7 +312,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return RefreshIndicator(
       onRefresh: _loadData,
-      color: AppTheme.accent,
+      color: AppTheme.accentGold,
       child: ListView(
         padding: const EdgeInsets.all(28),
         children: [
@@ -329,12 +321,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppTheme.accent.withValues(alpha: 0.15), AppTheme.accent.withValues(alpha: 0.02)],
+                colors: [AppTheme.accentGold.withValues(alpha: 0.15), AppTheme.accentGold.withValues(alpha: 0.02)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppTheme.accent.withValues(alpha: 0.2)),
+              border: Border.all(color: AppTheme.accentGold.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -349,10 +341,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Container(
                   width: 56, height: 56,
                   decoration: BoxDecoration(
-                    color: AppTheme.accent.withValues(alpha: 0.1),
+                    color: AppTheme.accentGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.accent, size: 28),
+                  child: const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.accentGold, size: 28),
                 ),
               ],
             ),
@@ -371,7 +363,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               physics: const NeverScrollableScrollPhysics(),
               childAspectRatio: isMobile ? 1.8 : 2.2,
               children: [
-                _StatCard(icon: Icons.people_rounded, label: 'Total Students', value: '${_students.length}', color: AppTheme.accent),
+                _StatCard(icon: Icons.people_rounded, label: 'Total Students', value: '${_students.length}', color: AppTheme.accentGold),
                 _StatCard(icon: Icons.quiz_rounded, label: 'Total Quizzes', value: '${_quizzes.length}', color: AppTheme.accentGold),
                 _StatCard(icon: Icons.published_with_changes_rounded, label: "Published Quizzes", value: '$pubCount', color: AppTheme.success),
                 _StatCard(icon: Icons.question_answer_outlined, label: 'Total Questions', value: '$_totalQuestions', color: AppTheme.warning),
@@ -383,14 +375,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
           // Recent Activity
           Row(
             children: [
-              const Icon(Icons.history_rounded, color: AppTheme.accent, size: 22),
+              const Icon(Icons.history_rounded, color: AppTheme.accentGold, size: 22),
               const SizedBox(width: 12),
               const Text('Recent Quizzes', style: TextStyle(color: AppTheme.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
               const Spacer(),
               TextButton.icon(
                 onPressed: () => setState(() => _currentIndex = 1),
-                icon: const Text('View All', style: TextStyle(color: AppTheme.accent, fontSize: 13, fontWeight: FontWeight.bold)),
-                label: const Icon(Icons.arrow_forward_rounded, color: AppTheme.accent, size: 16),
+                icon: const Text('View All', style: TextStyle(color: AppTheme.accentGold, fontSize: 13, fontWeight: FontWeight.bold)),
+                label: const Icon(Icons.arrow_forward_rounded, color: AppTheme.accentGold, size: 16),
               ),
             ],
           ),
@@ -422,7 +414,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: constraints.maxWidth),
                 child: DataTable(
-                  headingRowColor: WidgetStateProperty.all(const Color(0xFF0D1B2A)),
+                  headingRowColor: WidgetStateProperty.all(AppTheme.surface),
                   dataRowColor: WidgetStateProperty.all(AppTheme.cardBg),
                   headingTextStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5),
                   dataTextStyle: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),
@@ -477,7 +469,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
     return RefreshIndicator(
       onRefresh: _loadData,
-      color: AppTheme.accent,
+      color: AppTheme.accentGold,
       child: ListView(
         padding: const EdgeInsets.all(28),
         children: [
@@ -512,7 +504,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     child: ConstrainedBox(
                       constraints: BoxConstraints(minWidth: constraints.maxWidth),
                       child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(const Color(0xFF0D1B2A)),
+                        headingRowColor: WidgetStateProperty.all(AppTheme.surface),
                         dataRowColor: WidgetStateProperty.all(AppTheme.cardBg),
                         headingTextStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.5),
                         dataTextStyle: const TextStyle(color: AppTheme.textPrimary, fontSize: 13),

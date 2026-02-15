@@ -24,7 +24,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(28),
+      padding: const EdgeInsets.symmetric(vertical: 28),
       children: [
         // Search bar
         Container(

@@ -104,30 +104,20 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // App Icon
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppTheme.accent, AppTheme.accent.withValues(alpha: 0.7)],
-                          ),
-                          borderRadius: BorderRadius.circular(22),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.accent.withValues(alpha: 0.3),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
+                      // App Logo
+                      Hero(
+                        tag: 'app_logo',
+                        child: Container(
+                          height: 80,
+                          constraints: const BoxConstraints(maxWidth: 240),
+                          child: Image.asset('assets/images/zyra_logo.png', fit: BoxFit.contain),
                         ),
-                        child: const Icon(Icons.menu_book_rounded, size: 40, color: Colors.white),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 12),
                       const Text(
                         'Noor-e-Quran',
                         style: TextStyle(
-                          fontSize: 32,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textPrimary,
                           letterSpacing: 0.5,
@@ -135,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                       ),
                       const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
                           color: AppTheme.accentGold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -183,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: const InputDecoration(
                                   labelText: 'Email',
-                                  prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accent),
+                                  prefixIcon: Icon(Icons.email_outlined, color: AppTheme.accentGold),
                                 ),
                               ),
                               const SizedBox(height: 16),
@@ -192,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 obscureText: true,
                                 decoration: const InputDecoration(
                                   labelText: 'Password',
-                                  prefixIcon: Icon(Icons.lock_outline, color: AppTheme.accent),
+                                  prefixIcon: Icon(Icons.lock_outline, color: AppTheme.accentGold),
                                 ),
                               ),
                             ] else ...[
@@ -202,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                 decoration: const InputDecoration(
                                   labelText: 'Phone Number',
                                   hintText: 'Enter your registered number',
-                                  prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.accent),
+                                  prefixIcon: Icon(Icons.phone_outlined, color: AppTheme.accentGold),
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -273,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
             duration: const Duration(milliseconds: 250),
             padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
-              color: isActive ? AppTheme.accent : Colors.transparent,
+              color: isActive ? AppTheme.accentGold : Colors.transparent,
               borderRadius: BorderRadius.circular(9),
             ),
             child: Center(
