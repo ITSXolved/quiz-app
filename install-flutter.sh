@@ -3,6 +3,8 @@
 # Exit on error
 set -e
 
+# Deployment Trigger: 2026-02-15 20:15
+
 # Clone Flutter if it doesn't exist
 if [ ! -d "flutter" ]; then
   echo "Cloning Flutter SDK..."
