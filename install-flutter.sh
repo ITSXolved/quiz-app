@@ -17,3 +17,9 @@ export PATH="$PATH:`pwd`/flutter/bin"
 
 # Run Flutter doctor to download dependencies
 flutter doctor -v
+
+# Enable web support
+flutter config --enable-web
+
+# Build the web project
+flutter build web --release
