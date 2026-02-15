@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/supabase_config.dart';
 import 'config/theme.dart';
 import 'services/auth_service.dart';
@@ -9,6 +10,7 @@ import 'screens/student/student_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await SupabaseConfig.initialize();
   runApp(const NoorEQuranApp());
 }
