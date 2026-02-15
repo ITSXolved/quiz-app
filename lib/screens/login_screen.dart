@@ -3,7 +3,7 @@ import 'dart:ui';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
 import 'admin/admin_dashboard.dart';
-import 'student/student_dashboard.dart';
+import 'student_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
